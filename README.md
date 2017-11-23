@@ -67,8 +67,16 @@
 	const greeter = require('./Greeter.js');
  	document.querySelector('#root').appendChild(greeter());
 	```
+	
 #### 使用webpack的方式
 1. 在终端中敲入命令行
+
+	```dash
+	{extry file}出填写入口文件的路径，本文中就是上述main.js的路径，
+   {destination for bundled file}处填写打包文件的存放路径
+    填写路径的时候不用添加{}
+   webpack {entry file} {destination for bundled file}
+	```
 	
 	```
 	webpack zhangyan$ webpack app/main.js public/bundle.js//全局已经装了webpack
@@ -76,3 +84,29 @@
 	node_modules/.bin/webpack app/main.js public/bundle.js//全局没有装webpack，只有用node_modules里的
 	```
 2. 通过配置文件来使用
+	在根目录下定义一个配置文件webpack.config.js，在其中写上一些简单配置，主要涉及入口文件路径和打包后文件的存放路径
+	
+	```
+	module.exports = {
+	    entry: __dirname + '/app/main.js', //唯一入口文件
+	    output: {
+	        path: __dirname + '/public', //打包后文件存放的地方
+	        filename: 'bundle.js' //打包后输出文件的文件名
+	    }
+	}
+	```
+	>__dirname是nodejs中的一个全局变量，指向当前执行脚本所在的目录
+	
+	有了这个配置后，在终端里运行webpack(非全局安装需要使用node_moudules/.bin/webpack)命令，这条命令会自动引用webpack.config.js文件中的配置选项
+	![](imgs/webpack02.png)
+3. 更快捷的执行打包任务
+	对npm进行配置后可以在命令行中使用简单的npm start来替换上面繁琐的node_module/.bin/webpack这样的命令，在package.json中对scripts对象进行配置  
+	
+	```
+	"scripts": {
+	   "start": "webpack"
+	 },
+	```
+	在命令行里输入npm start 
+	![](imgs/webpack03.png)
+### webpack的强大功能

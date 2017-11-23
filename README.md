@@ -114,10 +114,10 @@
 #### 生成Source Maps(个人称之为资源映射表)
 ![](imgs/webpack04.png) 
 
-	devtool选项 | 配置结果
+	devtool选项  | 配置结果
 	------------|------
-	eval       | 每个module会封装到eval里包裹起来执行，并且会在末尾追加注释 //@ sourceURL
-	source-map | 生成一个SourceMap文件，在一个单独文件中产生一个完整且功能完全的文件，这个文件具有最好的source map,但是它会减慢打包速度 
+	eval        | 每个module会封装到eval里包裹起来执行，并且会在末尾追加注释 //@ sourceURL
+	source-map  | 生成一个SourceMap文件，在一个单独文件中产生一个完整且功能完全的文件，这个文件具有最好的source map,但是它会减慢打包速度 
 	hidden-source-map| 和source-map一样，但是不会再dubble末尾追加注释
 	inline-source-map| 生成一个DataUrl形成的SourceMap文件
 	eval-source-map | 每个module会通过eval()来执行，并且生成一个DataUrl形式的SourceMap。使用eval打包源文件模块，在同一文件中生成干净的完整的SourceMap。这个选项可以在不影响构建速度的前提下生成完整的SourceMap，但是对打包后输出的js文件的执行具有性能和安全的隐患， 在开发阶段这是一个很好的选择，但是在生产阶段一定不要启用这个选项
@@ -151,3 +151,46 @@
 ##### 总结
 对于小到中型的项目中，，eval-source-map是一个很好的选择。但是只能在开发阶段使用它，不能再生产阶段使用。cheap-module-eval-source-map方法构建速度更快，但是不利于调试，推荐在大型项目考虑时间成本时使用它。
 #### 使用webpack构建本地服务器
+让浏览器监听代码的修改，并自动刷新显示修改后的结果，webpack提供一个可选的本地开发服务器，这个本地服务器基于node.js构建，可以实现以上的功能,它是一个单独的组件，在webpack中进行配置之前需要单独安装它作为项目依赖。
+	
+	```
+	npm install --save-dev webpack-dev-server
+	```
+deserver作为webpack配置选项中的一项，它的配置选项有
+	
+	1. contentBase 默认webpack-dev-server会为根文件夹提供本地服务器，如果想为另一个目录提供本地服务器，应该在这里设置其所在目录
+	2. port: 设置默认端口，默认为8080
+	3. inline 设置为true，当源文件改变时会自动刷新
+	4. historyApiFallback 在开发单页应用时非常有用，它依赖于HTML5 history API，如果设置为true，所有的跳转将指向index.html
+	
+		```
+		//webpack.config.js设置
+		module.exports = {
+		  devtool: 'eval-source-map',
+		
+		  entry:  __dirname + "/app/main.js",
+		  output: {
+		    path: __dirname + "/public",
+		    filename: "bundle.js"
+		  },
+		  devServer: {
+		    contentBase: "./public",//本地服务器所加载的页面所在的目录
+		    historyApiFallback: true,//不跳转
+		    inline: true//实时刷新
+		  } 
+		}
+		//package.json中scripts对象添加命令
+		"scripts": {
+		    "test": "echo \"Error: no test specified\" && exit 1",
+		    "start": "webpack",
+		    "server": "webpack-dev-server --open"
+		  },
+		```
+#### Loaders
+使用不同的loader，webpack有能力调用外部的脚本和工具，实现对不同格式的文件处理，可以使得scss转成css,es6转成现代浏览器兼容的js文件等。
+
+Loaders需要单独安装并且在webpack.config.js中modules关键字进行配置：
+- test:用匹配loaders所处理文件的拓展名的正则表达式(必须)
+- loader: loader的名称(必须)例如es6转成es5 用babel
+- include/exclude 手动添加必须处理的文件（文件夹）或者屏蔽不需要处理的文件（文件夹） （可选）
+- query: 为loaders提供额外的设置选型（可选）

@@ -109,17 +109,45 @@
 	```
 	在命令行里输入npm start 
 	![](imgs/webpack03.png)
+	
 ### webpack的强大功能
 #### 生成Source Maps(个人称之为资源映射表)
 ![](imgs/webpack04.png) 
 
-devtool选项 | 配置结果
-------------|------
-eval       | 每个module会封装到eval里包裹起来执行，并且会在末尾追加注释 //@ sourceURL
-source-map | 生成一个SourceMap文件，在一个单独文件中产生一个完整且功能完全的文件，这个文件具有最好的source map,但是它会减慢打包速度 
-hidden-source-map| 和source-map一样，但是不会再dubble末尾追加注释
-inline-source-map| 生成一个DataUrl形成的SourceMap文件
-eval-source-map | 每个module会通过eval()来执行，并且生成一个DataUrl形式的SourceMap。使用eval打包源文件模块，在同一文件中生成干净的完整的SourceMap。这个选项可以在不影响构建速度的前提下生成完整的SourceMap，但是对打包后输出的js文件的执行具有性能和安全的隐患， 在开发阶段这是一个很好的选择，但是在生产阶段一定不要启用这个选项
-cheap-source-map| 生成一个没有列信息的SourceMaps文件，不包含loader的SourceMap。你如babel的SourceMap
-cheap-module-source-map| 生成一个没有列信息的SourceMaps文件，同时loader的SourceMap也被简化为只包含对应行的。在一个单独的文件中生成一个不带列映射的map,不带列映射可以提高打包的速度，但是也是的浏览器开发者工具只能对应到具体的行，不能对应到具体的列，会对调试造成不便。
+	devtool选项 | 配置结果
+	------------|------
+	eval       | 每个module会封装到eval里包裹起来执行，并且会在末尾追加注释 //@ sourceURL
+	source-map | 生成一个SourceMap文件，在一个单独文件中产生一个完整且功能完全的文件，这个文件具有最好的source map,但是它会减慢打包速度 
+	hidden-source-map| 和source-map一样，但是不会再dubble末尾追加注释
+	inline-source-map| 生成一个DataUrl形成的SourceMap文件
+	eval-source-map | 每个module会通过eval()来执行，并且生成一个DataUrl形式的SourceMap。使用eval打包源文件模块，在同一文件中生成干净的完整的SourceMap。这个选项可以在不影响构建速度的前提下生成完整的SourceMap，但是对打包后输出的js文件的执行具有性能和安全的隐患， 在开发阶段这是一个很好的选择，但是在生产阶段一定不要启用这个选项
+	cheap-source-map| 生成一个没有列信息的SourceMaps文件，不包含loader的SourceMap。你如babel的SourceMap
+	cheap-module-source-map| 生成一个没有列信息的SourceMaps文件，同时loader的SourceMap也被简化为只包含对应行的。在一个单独的文件中生成一个不带列映射的map,不带列映射可以提高打包的速度，但是也是的浏览器开发者工具只能对应到具体的行，不能对应到具体的列，会对调试造成不便。
+	
 
+##### 不同的devtool的配置后,打包后bundle.js文件的区别
+1. 使用devtool:'eval'
+
+	```
+	eval("const greeter = __webpack_require__(1);\ndocument.querySelector('#root').appendChild(greeter());\n\n//////////////////\n// WEBPACK FOOTER\n// ./app/main.js\n// module id = 0\n// module chunks = 0\n\n//# sourceURL=webpack:///./app/main.js?");
+	
+	```
+	每个模块被转换成了字符串，用eval包起来了，而且末尾都有//# sourceURL的注释
+2. 使用devtool: 'source-map'
+
+	![](imgs/webpack05.png)
+	会单独生成一个完整的bundle.js.map的文件，而且bundle.js末尾也会有sourceMappingURL的注释
+3. 使用devtool: 'hidden-source-map'  
+	和source-map一样，也会生成一个完整的bundle.js.map文件，但是不会在bundle.js末尾加上sourceMappingURL的注释
+4. devtool: 'inline-source-map'
+
+	```
+	//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vd2VicGFjay9ib290c3RyYXAgNzBmODU1YWQ3Y2RhZjVhZTUxNjQiLCJ3ZWJwYWNrOi8vLy4vYXBwL21haW4uanMiLCJ3ZWJwYWNrOi8vLy4vYXBwL0dyZWV0ZXIuanMiX
+	```
+	为打包前的每个文件添加sourcemap的dataUrl,追加到打包后文件内容的结尾，dataUrl包含一个文件完整的sourcemap信息的Base64格式化后的字符串
+5. eval-source-map  
+	用eval把每个模块包起来了，并且将打包前的每个模块的sourcemap信息转换为Base64编码，拼接在了每个打包后的文件的结尾
+6. 等等。不一一尝试了
+##### 总结
+对于小到中型的项目中，，eval-source-map是一个很好的选择。但是只能在开发阶段使用它，不能再生产阶段使用。cheap-module-eval-source-map方法构建速度更快，但是不利于调试，推荐在大型项目考虑时间成本时使用它。
+#### 使用webpack构建本地服务器

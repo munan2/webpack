@@ -110,3 +110,16 @@
 	在命令行里输入npm start 
 	![](imgs/webpack03.png)
 ### webpack的强大功能
+#### 生成Source Maps(个人称之为资源映射表)
+![](imgs/webpack04.png) 
+
+devtool选项 | 配置结果
+------------|------
+eval       | 每个module会封装到eval里包裹起来执行，并且会在末尾追加注释 //@ sourceURL
+source-map | 生成一个SourceMap文件，在一个单独文件中产生一个完整且功能完全的文件，这个文件具有最好的source map,但是它会减慢打包速度 
+hidden-source-map| 和source-map一样，但是不会再dubble末尾追加注释
+inline-source-map| 生成一个DataUrl形成的SourceMap文件
+eval-source-map | 每个module会通过eval()来执行，并且生成一个DataUrl形式的SourceMap。使用eval打包源文件模块，在同一文件中生成干净的完整的SourceMap。这个选项可以在不影响构建速度的前提下生成完整的SourceMap，但是对打包后输出的js文件的执行具有性能和安全的隐患， 在开发阶段这是一个很好的选择，但是在生产阶段一定不要启用这个选项
+cheap-source-map| 生成一个没有列信息的SourceMaps文件，不包含loader的SourceMap。你如babel的SourceMap
+cheap-module-source-map| 生成一个没有列信息的SourceMaps文件，同时loader的SourceMap也被简化为只包含对应行的。在一个单独的文件中生成一个不带列映射的map,不带列映射可以提高打包的速度，但是也是的浏览器开发者工具只能对应到具体的行，不能对应到具体的列，会对调试造成不便。
+
